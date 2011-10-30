@@ -1,0 +1,26 @@
+diff -r -u gproxy_/gproxy/bnet.cpp gproxy//gproxy/bnet.cpp
+--- gproxy_/gproxy/bnet.cpp	2010-03-11 10:00:40.000000000 -0600
++++ gproxy//gproxy/bnet.cpp	2011-10-29 09:12:59.262315488 -0500
+@@ -440,6 +440,8 @@
+ 					} */
+ 
+ 					// filter game names
++					
++					LOG_Print((*i)->GetGameName() + "|" + (*i)->GetMapPath() + "|" + (*i)->GetHostName() + "|" + (*i)->GetIPString() + "|" + UTIL_ToString((*i)->GetPort()));
+ 
+ 					if( !m_PublicGameFilter.empty( ) && (*i)->GetGameName( ) != m_SearchGameName )
+ 					{
+diff -r -u gproxy_/gproxy/gproxy.cpp gproxy//gproxy/gproxy.cpp
+--- gproxy_/gproxy/gproxy.cpp	2010-03-11 10:00:40.000000000 -0600
++++ gproxy//gproxy/gproxy.cpp	2011-10-29 09:09:33.122315529 -0500
+@@ -136,8 +136,8 @@
+ 	gMainWindowChanged = true;
+ 	CONSOLE_Draw( );
+ 
+-	if( log )
+-		LOG_Print( message );
++	if( log ) {}
++		//LOG_Print( message );
+ 
+ 	if( !gCurses )
+ 		cout << message;
