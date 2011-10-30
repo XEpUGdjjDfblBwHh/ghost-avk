@@ -6,7 +6,7 @@ diff -r -u gproxy_/gproxy/bnet.cpp gproxy//gproxy/bnet.cpp
  
  					// filter game names
 +					
-+					LOG_Print((*i)->GetGameName() + "|" + (*i)->GetMapPath() + "|" + (*i)->GetHostName() + "|" + (*i)->GetIPString() + "|" + UTIL_ToString((*i)->GetPort()));
++					LOG_Print((*i)->GetGameName() + "|" + (*i)->GetMapPath() + "|" + (*i)->GetHostName() + "|" + (*i)->GetIPString() + "|" + UTIL_ToString((*i)->GetPort()) + "|" + UTIL_ToString((*i)->GetHostCounter()));
  
  					if( !m_PublicGameFilter.empty( ) && (*i)->GetGameName( ) != m_SearchGameName )
  					{

