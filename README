@@ -1,0 +1,42 @@
+================
+ghost-avk README
+================
+
+Disclaimer
+----------
+
+ghost-avk is meant to demonstrate a flaw in GHost that allows users to conduct a denial of service attack without using much bandwidth. You should only use ghost-avk on your own PVPGN filled with your own bots (these settings can be configured in GProxy++). Any use of ghost-avk on actual GHost bots is prohibited.
+
+Requirements
+------------
+
+You will need to get GProxy++ (<a href="http://gproxyplusplus.googlecode.com/files/gproxyplusplus_ptr_src_1.0.zip">http://gproxyplusplus.googlecode.com/files/gproxyplusplus_ptr_src_1.0.zip</a>), which has its own requirements, and the Java Development Kit (http://www.oracle.com/technetwork/java/javase/downloads/index.html) or another Java compiler. Note that you will have to be able to compile both GProxy++ and the included ghost-avk Java source file.
+
+Installation
+------------
+
+First, apply the included patch file (named gproxy.patch) to your GProxy++ source, and compile GProxy++. This will change GProxy++ so that it logs game information (most importantly, IP address and port) to the log file. You will also have to add the following line to your configuration file:
+
+log = gproxy.log
+
+Actually, gproxy.log can be any file you wish. You will have to pass it as an argument to GhostAvk. Anyways, to compile GhostAvk:
+
+javac GhostAvk.java
+
+It's pretty simple...
+
+Run
+---
+
+Start GProxy++ and, if necessary, configure according to instructions it gives. Enable public game searching by typing "/public"; once completed, the modified GProxy++ will begin logging game information to its log file. You should check the log file to be sure it worked.
+
+Then, run GhostAvk with the following command:
+
+java GhostAvk gproxy.log
+
+Replace gproxy.log with the GProxy++ log file (including full path).
+
+File format
+-----------
+
+The file format of the log file is a column format, with line-separated rows and pipe character (|) separated columns. In the log file, the gamename is prepended by GProxy's time information, but this is of course not necessary. The second column is the map path of the game, and the third column is the username hosting it. The only fields used by ghost-avk are the last three, which specify the IP address (hostname can be given too), port, and host counter of the host.
